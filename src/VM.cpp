@@ -247,10 +247,10 @@ void VM::getCPUStat() {
 }
 
 void VM::extractPerfEvents(virTypedParameter *params, int nparams) {
-	const static char  CPU_CYCLES[] = "perf.cpu_cycles";
-	const static char  INSTRUCTIONS[] = "perf.instructions";
-	const static char  CACHE_REFERENCES[] = "perf.cache_references";
-	const static char  CACHE_MISSES[] = "perf.cache_misses";
+	const static char  CPU_CYCLES[32] = "perf.cpu_cycles";
+	const static char  INSTRUCTIONS[32] = "perf.instructions";
+	const static char  CACHE_REFERENCES[32] = "perf.cache_references";
+	const static char  CACHE_MISSES[32] = "perf.cache_misses";
 	for(int i = 0; i < nparams; ++i) {
 		const int type = params[i].type;
 		if(strcmp(params[i].field, CPU_CYCLES) == 0) {
@@ -277,6 +277,7 @@ void VM::getPerfEventStat() {
 	    virResetError(&err);
         return;
 	}
+	printf("virDomainListGetStats return %d\n", ret);
 	for(int i = 0; i < ret; ++i) {
 		virDomainStatsRecord *record = records[i];
 		extractPerfEvents(record->params, record->nparams);	
