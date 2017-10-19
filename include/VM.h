@@ -39,7 +39,7 @@ public:
 		rx_packets = tx_packets = total_packets = 0;
 		rx_bytes = tx_bytes = total_KB = 0;
 		dom_ptr = NULL;
-		io_timestamp_usec = 0;
+		io_timestamp_usec = -1;
 		vm_event_state = VIR_DOMAIN_EVENT_UNDEFINED;	
 		strcpy(netdev, "enp6s0");
 		netdev[6] = '\0';
