@@ -83,6 +83,8 @@ void VM::getNetworkIOStat() {
 	double p = 0.4;
 	packets_per_sec = packets_per_sec * p + (total_packets / elapsedTime) * (1-p);	
 	KB_per_sec = KB_per_sec * p + (total_KB / elapsedTime) * (1-p);
+	if(KB_per_sec < 0)
+		KB_per_sec = 0;
 }
 
 
@@ -180,14 +182,14 @@ void VM::getCPUStat() {
     }
 
     params_size = nparams * max_id;
-    if(now_params == NULL)
-    	now_params = (virTypedParameterPtr)calloc(nparams * max_id, sizeof(*now_params));
     if(then_params == NULL)
     	then_params = (virTypedParameterPtr)calloc(nparams * max_id, sizeof(*then_params));
     else{
     	virTypedParamsFree(then_params, then_nparams * max_id);
     	then_params = now_params;
-    }
+    }    
+    now_params = (virTypedParameterPtr)calloc(nparams * max_id, sizeof(*now_params));
+    
     /* And current stats */
     if ((now_nparams = virDomainGetCPUStats(dom_ptr, now_params,
                                         nparams, 0, max_id, 0)) < 0) {
