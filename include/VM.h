@@ -40,13 +40,15 @@ public:
 		rx_bytes = tx_bytes = total_KB = 0;
 		dom_ptr = NULL;
 		io_timestamp_usec = 0;
-		vm_event_state = VIR_DOMAIN_EVENT_UNDEFINED;
-		netdev = "enp6s0";
+		vm_event_state = VIR_DOMAIN_EVENT_UNDEFINED;		
 	}
 	const char* 						getVMName() const { return vm_name;}	
 
 	void setNUMANumber(int num) {
 		numa_number = num;
+	}
+	void setNetDev(const char *nd) {
+		strcpy(netdev, nd);
 	}
 	
 	void start();

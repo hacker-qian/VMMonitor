@@ -307,6 +307,7 @@ int Monitor::initVMInfo() {
 	for(int i = 0; i < dom_num; i++) {
 		int dom_id = running_dom_ids[i];
 		VM vm_info;
+		vm_info.setNetDev(netdev);
 		vm_info.setNUMANumber(numa_number);
 		vm_infos_map[dom_id] = vm_info;
 		virDomainPtr dom_ptr;
