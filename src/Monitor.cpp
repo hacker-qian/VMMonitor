@@ -307,6 +307,7 @@ int Monitor::initVMInfo() {
 	for(int i = 0; i < dom_num; i++) {
 		int dom_id = running_dom_ids[i];
 		VM vm_info;
+		vm_info.setNUMANumber(numa_number);
 		vm_infos_map[dom_id] = vm_info;
 		virDomainPtr dom_ptr;
 		dom_ptr = virDomainLookupByID(conn, dom_id);
@@ -421,6 +422,27 @@ void Monitor::start() {
 	printf("monitor_interval:\t%u second\n", monitor_interval);
 	printf("io_threshold:\t%llu\n", io_threshold);
 
+	printf("\n====================APM====================\n");
+	for(int i = 0; i < APM.size(); ++i) {
+		for(auto v : APM[i]) 
+			printf("%lf\t", v);
+		printf("\n");
+	}
+
+	printf("\n====================ANM====================\n");
+	for(int i = 0; i < ANM.size(); ++i) {
+		printf("%lf\t", ANM[i]);					
+	}
+	printf("\n");
+
+	printf("\n====================ANP====================\n");
+	for(int i = 0; i < ANP.size(); ++i) {
+		for(auto v : ANP[i]) 
+			printf("%lf\t", v);
+		printf("\n");					
+	}
+	printf("\n");
+
 	printf("\n====================VM Info====================\n");
 	map<int, VM>::iterator mit = vm_infos_map.begin();
 	for(; mit != vm_infos_map.end(); mit++) {
@@ -429,14 +451,19 @@ void Monitor::start() {
 		printf("vm_name:\t%s\n", vm_info.vm_name);		
 		printf("vf_no:\t%d\n", vm_info.vf_no);
 		printf("pid:\t%u\n", vm_info.pid);
+		printf("number of vCPU:\t %u\n", vm_info.vCPU_list.size());
 		printf("----------------------------------------------\n");
 	}
-	vector<double> cpu_usage;
 	while(1) {
 		if (virEventRunDefaultImpl() < 0) {
             fprintf(stderr, "Failed to run event loop: %s\n",
                     virGetLastErrorMessage());
         }
-					
+		for(auto it : vm_infos_map) {
+			VM &vm = mit->second;
+			vm.start();
+			vm.printVMInfo();
+		}
+		sleep(1);
 	}
 }

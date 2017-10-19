@@ -18,6 +18,8 @@
 
 #define VM_NAME_LEN 64
 #define PCI_STR_LEN 8
+#define  NETDEV_LEN 32
+#define  MAX_PATH_LEN 64
 
 // 模型需要的值
 struct ModelValue{
@@ -39,10 +41,17 @@ public:
 		dom_ptr = NULL;
 		io_timestamp_usec = 0;
 		vm_event_state = VIR_DOMAIN_EVENT_UNDEFINED;
+		netdev = "enp6s0";
 	}
 	const char* 						getVMName() const { return vm_name;}	
 
+	void setNUMANumber(int num) {
+		numa_number = num;
+	}
 	
+	void start();
+	void printVMInfo();
+
 
 private:
 
@@ -51,12 +60,17 @@ private:
 	char						vm_name[VM_NAME_LEN];
 	char						netdev_pci_slot_str[PCI_STR_LEN];
 	char						netdev_pci_funct_str[PCI_STR_LEN];
+	// 宿主机里需要监控的网卡的名字
+	char						netdev[NETDEV_LEN];
 	// the VF number, -1 if not assigned one.
 	int							vf_no;
 
 	std::list<ModelValue>		modelValList;
 	// modelValList最多保存多少个历史值
 	int 					modelValListLimit;
+	double 					alpha;
+	double 					beta;
+	double 					gama;
 
 
 
@@ -64,26 +78,19 @@ private:
 	unsigned long long			rx_packets;
 	unsigned long long			tx_packets;
 	unsigned long long			total_packets;	
-	// the history data
-	unsigned long long			total_packets_history;
-
-	// the history data of packets_per_sec;
-	double						packets_per_sec_history;
-	// the new data of packets_per_sec;
+	
+	// packets per second
 	double						packets_per_sec;
 	unsigned long long			rx_bytes;
 	unsigned long long			tx_bytes;
 
 	// KB
 	double						total_KB;
-	// the corresponding history data
-	double						total_KB_history;
 	double						KB_per_sec;
-	// the history data of KB_per_sec;
-	double						KB_per_sec_history;
 	unsigned long long			io_timestamp_usec;
 
 	/*********** I/O statistics data ********end *********/
+
 
 	/*********** Performance data ********start *********/
 
@@ -112,7 +119,8 @@ private:
 	std::map<int, int>			vCPU2pCPU;
 
 	// the memory page distribution in each NUMA node of this VM.
-	std::vector<unsigned int> 	memory_on_each_node;
+	std::vector<unsigned long> 	memory_on_each_node;
+	int 						numa_number;
 
 	
 	// The corresponding process id of this VM.
@@ -124,6 +132,16 @@ private:
 	** 5,PMSuspended; 6,Crashed
 	*/ 
 	virDomainEventType			vm_event_state;
+
+	// helper function
+	// 获取网络IO数据
+	void getNetworkIOStat();
+	// 获取内存分布数据
+	void getMemoryStat();
+	// 获取CPU使用率数据
+	void getCPUStat();
+	// 获取perf数据
+	void getPerfEventStat();
 	
 };
 
