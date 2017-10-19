@@ -247,6 +247,10 @@ void VM::getCPUStat() {
 }
 
 void VM::extractPerfEvents(virTypedParameter *params, int nparams) {
+	const static char  CPU_CYCLES[] = "perf.cpu_cycles";
+	const static char  INSTRUCTIONS[] = "perf.instructions";
+	const static char  CACHE_REFERENCES[] = "perf.cache_references";
+	const static char  CACHE_MISSES[] = "perf.cache_misses";
 	for(int i = 0; i < nparams; ++i) {
 		const int type = params[i].type;
 		if(strcmp(params[i].field, CPU_CYCLES) == 0) {

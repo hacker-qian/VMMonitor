@@ -71,10 +71,7 @@ public:
 
 
 private:
-	const  char  CPU_CYCLES[16] = "perf.cpu_cycles";
-	const  char  INSTRUCTIONS[18] = "perf.instructions";
-	const  char  CACHE_REFERENCES[22] = "perf.cache_references";
-	const  char  CACHE_MISSES[18] = "perf.cache_misses";
+	
 
 	friend class 				Monitor;
 	
