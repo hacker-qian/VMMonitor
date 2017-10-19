@@ -30,7 +30,7 @@ void VM::getNetworkIOStat() {
 	if(rx_pack_file == NULL) {
 		fprintf(stderr, "cannot open %s, error:%s\n", rx_pack_path, strerror(errno));
 		ret = -1;
-		return ret;
+		return;
 
 	}
 	fscanf(rx_pack_file, "%llu", &rx_packets);
@@ -88,7 +88,7 @@ void VM::getMemoryStat() {
 	FILE* file = fopen(file_name, "r");
 	if (file == NULL) {
 	    fprintf(stderr, "Tried to open PID %d numamaps, but it apparently went away.\n", pid);
-		return -1;  // Assume the process terminated?
+		return;  // Assume the process terminated?
 	}
 	memory_on_each_node.clear();
 	// push 'numa_number' elements in vector first.
@@ -105,12 +105,12 @@ void VM::getMemoryStat() {
 				if(node >= numa_number) {
 					fprintf(stderr, "numa_maps node number parse error:node %d is too large\n", node);
 					fclose(file);
-					return -1;
+					return;
 				}
 				if(p[0] != '=') {
 					fprintf(stderr, "numa_maps node number parse error\n");
 					fclose(file);
-					return -1;
+					return;
 				}
 				unsigned int pages = (unsigned int)strtol(&p[1], &p, 10);				
 				memory_on_each_node[node] += (pages);
