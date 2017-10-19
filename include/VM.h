@@ -59,6 +59,13 @@ public:
 	void start();
 	void printVMInfo();
 
+	~VM() {
+		if(then_params)
+			virTypedParamsFree(then_params, params_size);
+		if(now_params)
+			virTypedParamsFree(now_params, params_size);
+	}
+
 
 private:
 

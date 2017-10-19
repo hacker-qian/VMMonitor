@@ -164,7 +164,7 @@ void VM::getCPUStat() {
 	int max_id = 0;
     int nparams = 0, then_nparams = 0, now_nparams = 0;
 	/* and see how many vCPUs can we fetch stats for */
-    if ((max_id = virDomainGetCPUStats(dom, NULL, 0, 0, 0, 0)) < 0) {
+    if ((max_id = virDomainGetCPUStats(dom_ptr, NULL, 0, 0, 0, 0)) < 0) {
         virCopyLastError(&err);
 	    fprintf(stderr, "virDomainGetCPUStats failed: %s\n", err.message);
 	    virResetError(&err);
@@ -172,7 +172,7 @@ void VM::getCPUStat() {
     }
 
     /* how many stats can we get for a vCPU? */
-    if ((nparams = virDomainGetCPUStats(dom, NULL, 0, 0, 1, 0)) < 0) {
+    if ((nparams = virDomainGetCPUStats(dom_ptr, NULL, 0, 0, 1, 0)) < 0) {
         virCopyLastError(&err);
 	    fprintf(stderr, "virDomainGetCPUStats failed: %s\n", err.message);
 	    virResetError(&err);
@@ -181,15 +181,15 @@ void VM::getCPUStat() {
 
     params_size = nparams * max_id;
     if(now_params == NULL)
-    	now_params = new virTypedParameter[nparams * max_id];
+    	now_params = calloc(nparams * max_id, sizeof(*now_params));
     if(then_params == NULL)
-    	then_params = new virTypedParameter[nparams * max_id];
+    	then_params = calloc(nparams * max_id, sizeof(*then_params));
     else{
-    	virTypedParamsClear(then_params, then_nparams * max_id);
+    	virTypedParamsFree(then_params, then_nparams * max_id);
     	then_params = now_params;
     }
     /* And current stats */
-    if ((now_nparams = virDomainGetCPUStats(dom, now_params,
+    if ((now_nparams = virDomainGetCPUStats(dom_ptr, now_params,
                                         nparams, 0, max_id, 0)) < 0) {
             virCopyLastError(&err);
 		    fprintf(stderr, "virDomainGetCPUStats failed: %s\n", err.message);
