@@ -40,7 +40,7 @@ void VM::getNetworkIOStat() {
 	if(tx_pack_file == NULL) {
 		fprintf(stderr, "cannot open %s, error:%s\n", tx_pack_path, strerror(errno));
 		ret = -1;
-		return ret;
+		return;
 
 	}
 	fscanf(tx_pack_file, "%llu", &tx_packets);
@@ -49,7 +49,7 @@ void VM::getNetworkIOStat() {
 	if(rx_bytes_file == NULL) {
 		fprintf(stderr, "cannot open %s, error:%s\n", rx_bytes_path, strerror(errno));
 		ret = -1;
-		return ret;
+		return;
 
 	}
 	fscanf(rx_bytes_file, "%llu", &rx_bytes);
@@ -59,7 +59,7 @@ void VM::getNetworkIOStat() {
 	if(tx_bytes_file == NULL) {
 		fprintf(stderr, "cannot open %s, error:%s\n", tx_bytes_path, strerror(errno));
 		ret = -1;
-		return ret;
+		return;
 
 	}
 
@@ -95,6 +95,7 @@ void VM::getMemoryStat() {
 	for(int i = 0; i < numa_number; i++)
 		memory_on_each_node.push_back(0);
 
+	char *buf = file_name;
 	while(fgets(buf, MAX_PATH_LEN, file)) {
 		const char* delimiters = " \t\r\n";
 		char *p = strtok(buf, delimiters);
