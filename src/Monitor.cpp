@@ -195,12 +195,12 @@ int Monitor::setVMInfo(virDomainPtr dom_ptr, VM& vm_info, int dom_id) {
 		vm_info.dom_id = dom_id;
 		map<int, int> v2pMap = getVMRealCPU(dom_ptr);
 		vm_info.vCPU_list.clear();
-		vm_info.pCPU_list.clear();
+		vm_info.pCPU_set.clear();
 		vm_info.vCPU2pCPU.clear();
 		for(auto it : v2pMap) {
 			// key=vcpu, value = pCPU;
 			vm_info.vCPU_list.push_back(it.first);
-			vm_info.pCPU_list.push_back(it.second);
+			vm_info.pCPU_set.insert(it.second);
 			vm_info.vCPU2pCPU[it.first] = it.second;
 		}		
 
