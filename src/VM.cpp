@@ -269,7 +269,8 @@ void VM::extractPerfEvents(virTypedParameter *params, int nparams) {
 void VM::getPerfEventStat() {
 	virError err;
 	virDomainStatsRecord **records = NULL;
-	int ret = virDomainListGetStats(&dom_ptr , VIR_DOMAIN_STATS_PERF, &records,  
+	virDomainPtr doms[2] = {dom_ptr, NULL};
+	int ret = virDomainListGetStats(doms , VIR_DOMAIN_STATS_PERF, &records,  
 				VIR_CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE);
 	if(ret == -1) {
 		virCopyLastError(&err);
