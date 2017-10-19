@@ -300,5 +300,16 @@ void VM::printVMInfo() {
 	for(auto it : vCPU_usage_map) {
 		printf("vCPU%d usage:%.2lf\n", it.first, it.second);
 	}
+	printf("CPU cycles:%llu\n", cycles);
+	printf("instructions:%llu\n", instructions);
+	printf("cache_references:%llu\n", cache_references);
+	printf("cache_misses:%llu\n", cache_misses);
+	double missRatio = cache_misses / (double)cache_references;
+	printf("cache miss ratio:%.2lf\n", missRatio);
+	double mpi = cache_misses / (double) instructions;
+	printf("cache miss per instrcution:%.2lf\n", mpi);
+	double mpki = cache_misses / (instructions/1000.0);
+	printf("cache miss per 1000 instrcution:%.2lf\n", mpki);
+
 }
 
