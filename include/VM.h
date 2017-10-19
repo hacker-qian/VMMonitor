@@ -71,6 +71,10 @@ public:
 
 
 private:
+	const static char * CPU_CYCLES = "perf.cpu_cycles";
+	const static char * INSTRUCTIONS = "perf.instructions";
+	const static char * CACHE_REFERENCES = "perf.cache_references";
+	const static char * CACHE_MISSES = "perf.cache_misses";
 
 	friend class 				Monitor;
 	
@@ -167,6 +171,8 @@ private:
 	void getCPUStat();
 	// 获取perf数据
 	void getPerfEventStat();
+
+	void extractPerfEvents();
 	
 };
 

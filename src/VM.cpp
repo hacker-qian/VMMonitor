@@ -246,9 +246,39 @@ void VM::getCPUStat() {
 
 }
 
+void VM::extractPerfEvents(virTypedParameter *params, int nparams) {
+	for(int i = 0; i < nparams; ++i) {
+		const int type = params[i].type;
+		if(strcmp(params[i].field, CPU_CYCLES)) {
+			cycles = params[i].value.ul;
+		}else if(strcmp(params[i].field, INSTRUCTIONS)) {
+			instructions = params[i].value.ul;
+		}else if(strcmp(params[i].field, CACHE_REFERENCES)) {
+			cache_references = params[i].value.ul;
+		}else if(strcmp(params[i].field, CACHE_MISSES)) {
+			cache_misses = params[i].value.ul;
+		}		
+	}
+}
+
 // 获取perf数据
 void VM::getPerfEventStat() {
+	virError err;
+	virDomainStatsRecord **records = NULL;
+	int ret = virDomainListGetStats(&dom_ptr , 0, &records,  
+				VIR_CONNECT_GET_ALL_DOMAINS_STATS_ENFORCE_STATS);
+	if(ret == -1) {
+		virCopyLastError(&err);
+	    fprintf(stderr, "virConnectGetAllDomainStats failed: %s\n", err.message);
+	    virResetError(&err);
+        return;
+	}
+	for(int i = 0; i < ret; ++i) {
+		virDomainStatsRecord *record = records[i];
+		extractPerfEvents(record->params, record->nparams);	
+	}
 
+	virDomainStatsRecordListFree(records);
 }
 
 void VM::start() {
