@@ -69,10 +69,12 @@ void VM::getNetworkIOStat() {
 	struct timeval timestamp;
 	gettimeofday(&timestamp, NULL);
 	io_timestamp_usec = timestamp.tv_sec * 1000000 + timestamp.tv_usec;
-	double elapsedTime = (io_timestamp_usec - last_io_timestamp) / 1000000.0;
-		
+	double elapsedTime = (io_timestamp_usec - last_io_timestamp) / 1000000.0;	
 	total_packets = (rx_packets - last_rx_packets) + (tx_packets - last_tx_packets);
 	total_KB = (rx_bytes - last_rx_bytes)/1024.0 + (tx_bytes - last_tx_bytes)/1024.0;
+
+	printf("total_packets:%llu elapsedTime:%lf\n", total_packets, elapsedTime);
+
 	// 历史值占0.4
 	double p = 0.4;
 	packets_per_sec = packets_per_sec * p + (total_packets / elapsedTime) * (1-p);	
