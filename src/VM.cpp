@@ -73,8 +73,8 @@ void VM::getNetworkIOStat() {
 		// 第一次数据丢掉
 		return;
 	}
-	printf("last_io_timestamp:%lf io_timestamp_usec:%lf\n", last_io_timestamp, io_timestamp_usec);
-	
+	printf("last_io_timestamp:%llu io_timestamp_usec:%llu\n", last_io_timestamp, io_timestamp_usec);
+
 	double elapsedTime = (io_timestamp_usec - last_io_timestamp) / 1000000.0;	
 	total_packets = (rx_packets - last_rx_packets) + (tx_packets - last_tx_packets);
 	total_KB = (rx_bytes - last_rx_bytes)/1024.0 + (tx_bytes - last_tx_bytes)/1024.0;
