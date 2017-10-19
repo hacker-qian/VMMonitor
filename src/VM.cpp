@@ -181,9 +181,9 @@ void VM::getCPUStat() {
 
     params_size = nparams * max_id;
     if(now_params == NULL)
-    	now_params = calloc(nparams * max_id, sizeof(*now_params));
+    	now_params = (virTypedParameterPtr)calloc(nparams * max_id, sizeof(*now_params));
     if(then_params == NULL)
-    	then_params = calloc(nparams * max_id, sizeof(*then_params));
+    	then_params = (virTypedParameterPtr)calloc(nparams * max_id, sizeof(*then_params));
     else{
     	virTypedParamsFree(then_params, then_nparams * max_id);
     	then_params = now_params;
