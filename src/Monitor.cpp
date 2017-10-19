@@ -461,7 +461,7 @@ void Monitor::start() {
                     virGetLastErrorMessage());
         }
 		for(auto it : vm_infos_map) {
-			VM &vm = mit->second;
+			VM &vm = mit.second;
 			vm.start();
 			vm.printVMInfo();
 		}
