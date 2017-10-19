@@ -8,7 +8,7 @@ void VM::getNetworkIOStat() {
 	char tx_pack_path[MAX_PATH_LEN];
 	char rx_bytes_path[MAX_PATH_LEN];
 	char tx_bytes_path[MAX_PATH_LEN];
-
+	printf("netdev:%s\tvf_node:%d\n", netdev, vf_no);
 	snprintf(rx_pack_path, MAX_PATH_LEN, "/sys/class/net/%s/vf%d/statistics/rx_packets", netdev, vf_no);
 	snprintf(tx_pack_path, MAX_PATH_LEN, "/sys/class/net/%s/vf%d/statistics/tx_packets", netdev, vf_no);
 	snprintf(rx_bytes_path, MAX_PATH_LEN, "/sys/class/net/%s/vf%d/statistics/rx_bytes", netdev, vf_no);

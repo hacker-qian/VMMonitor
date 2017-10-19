@@ -42,6 +42,7 @@ public:
 		io_timestamp_usec = 0;
 		vm_event_state = VIR_DOMAIN_EVENT_UNDEFINED;	
 		strcpy(netdev, "enp6s0");
+		netdev[6] = '\0';
 	}
 	const char* 						getVMName() const { return vm_name;}	
 
