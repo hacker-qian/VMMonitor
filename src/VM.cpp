@@ -144,7 +144,7 @@ void VM::printVMInfo() {
 	printf("KBPS:\t%lf\n", KB_per_sec);
 	printf("Memory distribution:\n");
 	for(int i = 0; i < numa_number; ++i) {
-		printf("Node[%d]: %llu\n", memory_on_each_node[i]);
+		printf("Node[%d]: %llu\n", i, memory_on_each_node[i]);
 	}
 }
 
