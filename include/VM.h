@@ -12,6 +12,7 @@
 #include <set>
 #include "Monitor.h"
 #include <vector>
+#include <set>
 #include <list>
 #include <map>
 
@@ -41,8 +42,10 @@ public:
 		dom_ptr = NULL;
 		io_timestamp_usec = -1;
 		vm_event_state = VIR_DOMAIN_EVENT_UNDEFINED;	
-		strcpy(netdev, "enp6s0");
-		netdev[6] = '\0';
+		then_params = now_params = NULL;
+		vcpu_timestamp_usec = last_vcpu_timestamp_usec = -1;
+		//strcpy(netdev, "enp6s0");
+		//netdev[6] = '\0';
 	}
 	const char* 						getVMName() const { return vm_name;}	
 
@@ -50,7 +53,7 @@ public:
 		numa_number = num;
 	}
 	void setNetDev(const char *nd) {
-		//strcpy(netdev, nd);
+		strcpy(netdev, nd);
 	}
 	
 	void start();
@@ -119,12 +122,20 @@ private:
 	// 当前虚拟机的vCPU的列表。
 	std::vector<int> 			vCPU_list;
 	// 当前虚拟机实际运行在的物理CPU的列表
-	std::vector<int>			pCPU_list;
+	std::set<int>			pCPU_set;
 	std::map<int, int>			vCPU2pCPU;
+	std::map<int, int>			pCPU2vCPU;
+	// 保存某个vCPU对应的使用率
+	std::map<int, double> 		vCPU_usage_map;
+	unsigned long long			vcpu_timestamp_usec;
+	unsigned long long			last_vcpu_timestamp_usec;
 
 	// the memory page distribution in each NUMA node of this VM.
 	std::vector<unsigned long> 	memory_on_each_node;
 	int 						numa_number;
+
+	virTypedParameterPtr 		then_params, now_params;
+	int 						params_size;
 
 	
 	// The corresponding process id of this VM.

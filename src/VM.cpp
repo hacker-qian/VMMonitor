@@ -26,7 +26,6 @@ void VM::getNetworkIOStat() {
 	last_tx_bytes     = tx_bytes;
 	last_io_timestamp = io_timestamp_usec;
 
-	printf("last_io_timestamp:%llu io_timestamp_usec:%llu\n", last_io_timestamp, io_timestamp_usec);
 
 	FILE* rx_pack_file = fopen(rx_pack_path, "r");
 	if(rx_pack_file == NULL) {
@@ -75,13 +74,10 @@ void VM::getNetworkIOStat() {
 		// 第一次数据丢掉
 		return;
 	}
-	printf("last_io_timestamp:%llu io_timestamp_usec:%llu\n", last_io_timestamp, io_timestamp_usec);
 
 	double elapsedTime = (io_timestamp_usec - last_io_timestamp) / 1000000.0;	
 	total_packets = (rx_packets - last_rx_packets) + (tx_packets - last_tx_packets);
 	total_KB = (rx_bytes - last_rx_bytes)/1024.0 + (tx_bytes - last_tx_bytes)/1024.0;
-
-	printf("total_packets:%llu elapsedTime:%lf\n", total_packets, elapsedTime);
 
 	// 历史值占0.4
 	double p = 0.4;
@@ -133,6 +129,117 @@ void VM::getMemoryStat() {
 
 // 获取CPU使用率数据
 void VM::getCPUStat() {
+	virError err;
+	int n_vCPU = virDomainGetVcpusFlags(dom_ptr, VIR_DOMAIN_VCPU_LIVE);	
+	if(n_vCPU == -1) {
+		virCopyLastError(&err);
+	    fprintf(stderr, "virDomainGetVcpusFlags failed: %s\n", err.message);
+	    virResetError(&err);
+	    return;
+	}
+	// 更新当前虚拟机的vCPU信息
+	virVcpuInfoPtr vcpu_info_list = new virVcpuInfo[n_vCPU];	
+	n_vCPU = virDomainGetVcpus(dom, vcpu_info_list, n_vCPU, NULL, 0);
+	if(n_vCPU == -1) {
+		virCopyLastError(&err);
+	    fprintf(stderr, "virDomainGetVcpus failed: %s\n", err.message);
+	    virResetError(&err);
+	}else{
+		vCPU_list.clear();
+		vCPU2pCPU.clear();
+		pCPU2vCPU.clear();
+		vCPU_list.resize(n_vCPU);
+		for(int i = 0; i < n_vCPU; ++i) {
+			int vcpu = vcpu_info_list[i].number;
+			int pcpu = vcpu_info_list[i].cpu;
+			vCPU_list.push_back(vcpu);
+			pCPU_set.insert(pcpu);
+			vCPU2pCPU[vcpu] = pcpu;
+			pCPU2vCPU[pcpu] = vcpu;
+		}
+		
+	}
+	delete[] vcpu_info_list;
+
+	int max_id = 0;
+    int nparams = 0, then_nparams = 0, now_nparams = 0;
+	/* and see how many vCPUs can we fetch stats for */
+    if ((max_id = virDomainGetCPUStats(dom, NULL, 0, 0, 0, 0)) < 0) {
+        virCopyLastError(&err);
+	    fprintf(stderr, "virDomainGetCPUStats failed: %s\n", err.message);
+	    virResetError(&err);
+        return;
+    }
+
+    /* how many stats can we get for a vCPU? */
+    if ((nparams = virDomainGetCPUStats(dom, NULL, 0, 0, 1, 0)) < 0) {
+        virCopyLastError(&err);
+	    fprintf(stderr, "virDomainGetCPUStats failed: %s\n", err.message);
+	    virResetError(&err);
+        return;
+    }
+
+    params_size = nparams * max_id;
+    if(now_params == NULL)
+    	now_params = new virTypedParameter[nparams * max_id];
+    if(then_params == NULL)
+    	then_params = new virTypedParameter[nparams * max_id];
+    else{
+    	virTypedParamsClear(then_params, then_nparams * max_id);
+    	then_params = now_params;
+    }
+    /* And current stats */
+    if ((now_nparams = virDomainGetCPUStats(dom, now_params,
+                                        nparams, 0, max_id, 0)) < 0) {
+            virCopyLastError(&err);
+		    fprintf(stderr, "virDomainGetCPUStats failed: %s\n", err.message);
+		    virResetError(&err);
+	        return;
+    }
+    struct timeval timestamp;
+	gettimeofday(&timestamp, NULL);
+	last_vcpu_timestamp_usec = vcpu_timestamp_usec;
+	vcpu_timestamp_usec = timestamp.tv_sec * 1000000 + timestamp.tv_usec;
+	if(last_vcpu_timestamp_usec < 0) {
+		// 第一次数据丢掉
+		return;
+	}
+	// 计算当前VM的vCPU的使用率
+	size_t nparams = now_nparams;
+	if (then_nparams != now_nparams) {
+        /* this should not happen (TM) */
+        printf("parameters counts don't match\n");
+        return;
+    }
+    for(auto i : pCPU_set) {
+    	size_t pos;
+        double usage;
+
+        /* check if the vCPU is in the maps */
+        if (now_params[i * nparams].type == 0 ||
+            then_params[i * then_nparams].type == 0)
+            continue;
+
+        for (j = 0; j < nparams; j++) {
+            pos = i * nparams + j;
+            if (!strcmp(then_params[pos].field, VIR_DOMAIN_CPU_STATS_CPUTIME) ||
+                !strcmp(then_params[pos].field, VIR_DOMAIN_CPU_STATS_VCPUTIME))
+                break;
+        }
+
+        if (j == nparams) {
+            fprintf(stderr, "unable to find %s\n", VIR_DOMAIN_CPU_STATS_CPUTIME);
+            return;
+        }
+
+       
+        double elapsedTime = (vcpu_timestamp_usec - last_vcpu_timestamp_usec) / 1000000.0;
+        usage = (now_params[pos].value.ul - then_params[pos].value.ul) / elapsedTime;
+        usage *= 100;
+
+        int vcpu = pCPU2vCPU[i];
+        vCPU_usage_map[vcpu] = usage;
+    }
 
 }
 
@@ -155,6 +262,10 @@ void VM::printVMInfo() {
 	printf("Memory distribution:\n");
 	for(int i = 0; i < numa_number; ++i) {
 		printf("Node[%d]: %llu\n", i, memory_on_each_node[i]);
+	}
+	printf("VM has %d\n vCPU.\n", vCPU_list.size());
+	for(auto it : vCPU_usage_map) {
+		printf("vCPU%d usage:%lf\n", it.first, it.second);
 	}
 }
 
