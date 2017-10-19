@@ -237,8 +237,8 @@ void VM::getCPUStat() {
 
        
         double elapsedTime = (vcpu_timestamp_usec - last_vcpu_timestamp_usec) / 1000000.0;
-        usage = (now_params[pos].value.ul - then_params[pos].value.ul) / elapsedTime;
-        usage *= 100;
+        usage = (now_params[pos].value.ul - then_params[pos].value.ul) / 
+        				(vcpu_timestamp_usec - last_vcpu_timestamp_usec) / 10;        
 
         int vcpu = pCPU2vCPU[i];
         vCPU_usage_map[vcpu] = usage;
@@ -260,15 +260,15 @@ void VM::start() {
 
 void VM::printVMInfo() {
 	printf("%s:\n", vm_name);
-	printf("PPS:\t%lf\n", packets_per_sec);
-	printf("KBPS:\t%lf\n", KB_per_sec);
+	printf("PPS:\t%.2lf\n", packets_per_sec);
+	printf("KBPS:\t%.2lf\n", KB_per_sec);
 	printf("Memory distribution:\n");
 	for(int i = 0; i < numa_number; ++i) {
 		printf("Node[%d]: %llu\n", i, memory_on_each_node[i]);
 	}
-	printf("VM has %d\n vCPU.\n", vCPU_list.size());
+	printf("VM has %d\n vCPU.\n", vCPU_usage_map.size());
 	for(auto it : vCPU_usage_map) {
-		printf("vCPU%d usage:%lf\n", it.first, it.second);
+		printf("vCPU%d usage:%.2lf\n", it.first, it.second);
 	}
 }
 
