@@ -139,7 +139,7 @@ void VM::getCPUStat() {
 	}
 	// 更新当前虚拟机的vCPU信息
 	virVcpuInfoPtr vcpu_info_list = new virVcpuInfo[n_vCPU];	
-	n_vCPU = virDomainGetVcpus(dom, vcpu_info_list, n_vCPU, NULL, 0);
+	n_vCPU = virDomainGetVcpus(dom_ptr, vcpu_info_list, n_vCPU, NULL, 0);
 	if(n_vCPU == -1) {
 		virCopyLastError(&err);
 	    fprintf(stderr, "virDomainGetVcpus failed: %s\n", err.message);
@@ -205,12 +205,13 @@ void VM::getCPUStat() {
 		return;
 	}
 	// 计算当前VM的vCPU的使用率
-	size_t nparams = now_nparams;
+	then_nparams = nparams;
 	if (then_nparams != now_nparams) {
         /* this should not happen (TM) */
         printf("parameters counts don't match\n");
         return;
     }
+    int j = 0;
     for(auto i : pCPU_set) {
     	size_t pos;
         double usage;
