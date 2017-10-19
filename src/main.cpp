@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     int numa_number = numa_max_node() + 1;	
     int cpu_number = sysconf(_SC_NPROCESSORS_ONLN);
 	printf("There are %d cpus, %d numa nodes in your system.\n", cpu_number, numa_number);	
-	Monitor monitor(numa_number, cpu_number, "qemu:///system", strategy);	
+	Monitor monitor(numa_number, cpu_number, "qemu:///system");	
 	monitor.start();
 	
 

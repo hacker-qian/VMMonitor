@@ -23,8 +23,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <map>
-#include <pthread.h>
-#include "IOMonitor.h"
 #include "VM.h"
 
 #define  NETDEV_LEN 32
@@ -41,7 +39,7 @@ class VM;
 class Monitor {
 public:
 	Monitor(int numa_num, int cpu_num, const char* connect_str):
-									 numa_number(numa_num), cpu_number(cpu_num), numa_nodes(numa_num, {})								 
+									 numa_number(numa_num), cpu_number(cpu_num)								 
 									 								 
 
 	{
@@ -50,7 +48,6 @@ public:
 		strncpy(conn_str, connect_str, len);
 		conn_str[len] = '\0';
 		io_threshold = 0;
-		monitor_started = false;		
 	}
 
 	~Monitor();
@@ -84,8 +81,8 @@ private:
 	// Containing all running vm. Key=dom_id.
 	std::map<int, VM> 		vm_infos_map;	
 
-	std::vector<vector<double>> 	APM;
-	std::vector<vector<double>> 	ANP;
+	std::vector<std::vector<double>> 	APM;
+	std::vector<std::vector<double>> 	ANP;
 	std::vector<double>		ANM;
 
 	

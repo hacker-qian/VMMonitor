@@ -6,8 +6,9 @@
 #include <libvirt/libvirt.h>
 #include <libvirt/virterror.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <string>
+#include <cstring>
 #include <set>
 #include "Monitor.h"
 #include <vector>
@@ -22,7 +23,7 @@
 struct ModelValue{
 	double 				value;
 	unsigned long 		timestamp;
-	string 				date;
+    std::string 				date;
 };
 
 /*
@@ -32,7 +33,7 @@ struct ModelValue{
 class VM {
 public:
 	VM(): modelValListLimit(100){
-		vf_no = pid = dom_id = real_cpu_no = -1;
+		vf_no = pid = dom_id  = -1;
 		rx_packets = tx_packets = total_packets = 0;
 		rx_bytes = tx_bytes = total_KB = 0;
 		dom_ptr = NULL;
@@ -55,7 +56,7 @@ private:
 
 	std::list<ModelValue>		modelValList;
 	// modelValList最多保存多少个历史值
-	const int 					modelValListLimit;
+	int 					modelValListLimit;
 
 
 

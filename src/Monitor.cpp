@@ -362,61 +362,7 @@ void Monitor::virConnectCloseCallBack(virConnectPtr conn ATTRIBUTE_UNUSED,
 int Monitor::virVMEventCallBack(virConnectPtr conn ATTRIBUTE_UNUSED,
 							  virDomainPtr dom, int event,
 							  int detail, void *data) {
-	if(data == NULL) {
-		return -1;
-	}
-	int ret = 0;
-	Monitor *Monitor = (Monitor*)data;
-	int domId = virDomainGetID(dom);
-	virDomainEventType  curEventState = (virDomainEventType) event;
-	if(curEventState == VIR_DOMAIN_EVENT_STARTED) {
-		// A new VM started
-		VM vm_info;
-		(Monitor->vm_infos_map)[domId] = vm_info;
-		virDomainPtr dom_ptr;
-		dom_ptr = virDomainLookupByID(conn, domId);
-		int flag = Monitor->set_vm_info(dom_ptr, (Monitor->vm_infos_map)[domId], domId);
-		(Monitor->vm_infos_map)[domId].vm_event_state = curEventState;
-		if(flag == -1) 
-			ret = -1;		
-	} else if(curEventState == VIR_DOMAIN_EVENT_SUSPENDED
-			|| curEventState == VIR_DOMAIN_EVENT_RESUMED
-			|| curEventState == VIR_DOMAIN_EVENT_STOPPED
-			|| curEventState == VIR_DOMAIN_EVENT_SHUTDOWN
-			|| curEventState == VIR_DOMAIN_EVENT_CRASHED ){
-
-		auto vm_infos_map_it = (Monitor->vm_infos_map).find(domId);
-		VM& vm_info = vm_infos_map_it->second;
-		if(vm_infos_map_it == (Monitor->vm_infos_map).end()) {
-			fprintf(stderr, "Error VM:%d doesn't exist in vm_infos_map!\n", domId);
-			return -1;
-		}
-		virDomainEventType	lastVMEventState = vm_info.vm_event_state;
-		if((lastVMEventState == VIR_DOMAIN_EVENT_SHUTDOWN ||lastVMEventState == VIR_DOMAIN_EVENT_STOPPED)
-			&& (curEventState == VIR_DOMAIN_EVENT_STOPPED)) {
-					// if last event state is shutdown or stopped and
-					// current event state is stopped, the VM has been turned off
-					// For VM shutdown, remove any related information for this VM.
-					/* remove the CPU_VM_MAPPING */
-					auto rcpu_it = (Monitor->cpu_vm_mapping).find(vm_info.real_cpu_no);
-					if(rcpu_it != (Monitor->cpu_vm_mapping).end() && 
-						rcpu_it->second == vm_info.dom_id) {
-						// Attention!!! If cpu_vm_mapping[vm_info.real_cpu_no] != vm_info.dom_id,
-						// it means that a new mapping has overwritten the old mapping!!
-						// In this case we should not erase this key!!!!!!!
-						(Monitor->cpu_vm_mapping).erase(rcpu_it);
-					}
-					/* remove the VM from vm_infos_map */
-					(Monitor->vm_infos_map).erase(vm_infos_map_it);
-		} else {
-			// Other states include "Reboot", "Susbend", and none of them 
-			// need additional handling
-			vm_info.vm_event_state = curEventState;
-		}
-
-		
-	}
-    return ret;
+    return 0;
 }
 
 
@@ -425,7 +371,7 @@ int Monitor::virVMEventCallBack(virConnectPtr conn ATTRIBUTE_UNUSED,
 */
 map<int,int> Monitor::getVMRealCPU(virDomainPtr dom_ptr) {
 	map<int, int> vCPU_pCPU_map;
-	virError vir_err;
+	virError err;
 	int n_vCPU = virDomainGetVcpusFlags(dom_ptr, VIR_DOMAIN_VCPU_LIVE);	
 	if(n_vCPU == -1) {
 		virCopyLastError(&err);
@@ -434,7 +380,7 @@ map<int,int> Monitor::getVMRealCPU(virDomainPtr dom_ptr) {
 	    return vCPU_pCPU_map;
 	}
 	virVcpuInfoPtr vcpu_info_list = new virVcpuInfo[n_vCPU];	
-	n_vCPU = virDomainGetVcpus(dom, vcpu_info_list, n_vCPU, NULL, 0);
+	n_vCPU = virDomainGetVcpus(dom_ptr, vcpu_info_list, n_vCPU, NULL, 0);
 	if(n_vCPU == -1) {
 		virCopyLastError(&err);
 	    fprintf(stderr, "virDomainGetVcpus failed: %s\n", err.message);
