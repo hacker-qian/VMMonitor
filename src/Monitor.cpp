@@ -460,7 +460,7 @@ void Monitor::start() {
             fprintf(stderr, "Failed to run event loop: %s\n",
                     virGetLastErrorMessage());
         }
-		for(auto it : vm_infos_map) {
+		for(auto &it : vm_infos_map) {
 			VM &vm = it.second;
 			vm.start();
 			vm.printVMInfo();

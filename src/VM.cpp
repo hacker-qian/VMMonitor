@@ -26,6 +26,8 @@ void VM::getNetworkIOStat() {
 	last_tx_bytes     = tx_bytes;
 	last_io_timestamp = io_timestamp_usec;
 
+	printf("last_io_timestamp:%llu io_timestamp_usec:%llu\n", last_io_timestamp, io_timestamp_usec);
+
 	FILE* rx_pack_file = fopen(rx_pack_path, "r");
 	if(rx_pack_file == NULL) {
 		fprintf(stderr, "cannot open %s, error:%s\n", rx_pack_path, strerror(errno));
