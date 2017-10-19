@@ -53,7 +53,9 @@ public:
 		numa_number = num;
 	}
 	void setNetDev(const char *nd) {
+		int len = strlen(nd);
 		strcpy(netdev, nd);
+		netdev[len] = '\0';
 	}
 	
 	void start();
