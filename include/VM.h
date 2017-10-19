@@ -71,10 +71,10 @@ public:
 
 
 private:
-	constexpr  char  CPU_CYCLES[] = "perf.cpu_cycles";
-	constexpr  char  INSTRUCTIONS[] = "perf.instructions";
-	constexpr  char  CACHE_REFERENCES[] = "perf.cache_references";
-	constexpr  char  CACHE_MISSES[] = "perf.cache_misses";
+	const  char  CPU_CYCLES[] = "perf.cpu_cycles";
+	const  char  INSTRUCTIONS[] = "perf.instructions";
+	const  char  CACHE_REFERENCES[] = "perf.cache_references";
+	const  char  CACHE_MISSES[] = "perf.cache_misses";
 
 	friend class 				Monitor;
 	
