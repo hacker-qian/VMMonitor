@@ -249,13 +249,13 @@ void VM::getCPUStat() {
 void VM::extractPerfEvents(virTypedParameter *params, int nparams) {
 	for(int i = 0; i < nparams; ++i) {
 		const int type = params[i].type;
-		if(strcmp(params[i].field, CPU_CYCLES)) {
+		if(strcmp(params[i].field, CPU_CYCLES) == 0) {
 			cycles = params[i].value.ul;
-		}else if(strcmp(params[i].field, INSTRUCTIONS)) {
+		}else if(strcmp(params[i].field, INSTRUCTIONS) == 0) {
 			instructions = params[i].value.ul;
-		}else if(strcmp(params[i].field, CACHE_REFERENCES)) {
+		}else if(strcmp(params[i].field, CACHE_REFERENCES) == 0) {
 			cache_references = params[i].value.ul;
-		}else if(strcmp(params[i].field, CACHE_MISSES)) {
+		}else if(strcmp(params[i].field, CACHE_MISSES) == 0) {
 			cache_misses = params[i].value.ul;
 		}		
 	}
@@ -265,8 +265,8 @@ void VM::extractPerfEvents(virTypedParameter *params, int nparams) {
 void VM::getPerfEventStat() {
 	virError err;
 	virDomainStatsRecord **records = NULL;
-	int ret = virDomainListGetStats(&dom_ptr , 0, &records,  
-				VIR_CONNECT_GET_ALL_DOMAINS_STATS_ENFORCE_STATS);
+	int ret = virDomainListGetStats(&dom_ptr , VIR_DOMAIN_STATS_PERF, &records,  
+				VIR_CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE);
 	if(ret == -1) {
 		virCopyLastError(&err);
 	    fprintf(stderr, "virConnectGetAllDomainStats failed: %s\n", err.message);
