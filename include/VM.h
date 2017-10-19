@@ -71,10 +71,10 @@ public:
 
 
 private:
-	constexpr static char  CPU_CYCLES[] = "perf.cpu_cycles";
-	constexpr static char  INSTRUCTIONS[] = "perf.instructions";
-	constexpr static char  CACHE_REFERENCES[] = "perf.cache_references";
-	constexpr static char  CACHE_MISSES[] = "perf.cache_misses";
+	constexpr  char  CPU_CYCLES[] = "perf.cpu_cycles";
+	constexpr  char  INSTRUCTIONS[] = "perf.instructions";
+	constexpr  char  CACHE_REFERENCES[] = "perf.cache_references";
+	constexpr  char  CACHE_MISSES[] = "perf.cache_misses";
 
 	friend class 				Monitor;
 	
