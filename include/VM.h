@@ -44,6 +44,7 @@ public:
 		vm_event_state = VIR_DOMAIN_EVENT_UNDEFINED;	
 		then_params = now_params = NULL;
 		vcpu_timestamp_usec = last_vcpu_timestamp_usec = -1;
+		KB_per_sec = packets_per_sec = 0;
 		//strcpy(netdev, "enp6s0");
 		//netdev[6] = '\0';
 	}
