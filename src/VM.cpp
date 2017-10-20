@@ -366,6 +366,7 @@ void VM::calculateModelValue() {
 		// 相当于0了
 		beta = gama = 0;
 	}
+	beta = gama = (pps/pps_high);
 
 	int numa_number = cpu_list_in_node.size();
 
@@ -435,7 +436,7 @@ void VM::calculateModelValue() {
 			valueANP += (UANP[i][j] * ANP[i][j]);
 		}
 	}
-	printf("alpha=%.2lf valueAPM=%.2lf beta=%.2lf valueANM=%.2lf gama=%.2lf valueANP=%.2lf\n",
+	printf("alpha=%.5lf valueAPM=%.2lf beta=%.2lf valueANM=%.2lf gama=%.2lf valueANP=%.2lf\n",
 		alpha, valueAPM, beta, valueANM, gama, valueANP);
 	raie = alpha * valueAPM + beta * valueANM + gama * valueANP;
 
