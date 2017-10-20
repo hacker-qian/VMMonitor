@@ -364,6 +364,13 @@ void VM::calculateModelValue() {
 	}
 
 	int numa_number = cpu_list_in_node.size();
+
+	printf("standard_mapki=%.2lf standard_pps=%.2lf 
+		mpki_high=%.2lf mpki_low=%.2lf pps_high=%.2lf pps_low=%.2lf\n", standard_mapki,
+		standard_pps, mpki_high, mpki_low, pps_high, pps_low);
+
+	printf("alpha=%.2lf beta=%.2lf gama=%.2lf numa_number=%d\n", alpha, beta, gama, numa_number);
+
 	// 向量C, M
 	vector<double> C(numa_number, 0.0);
 	vector<double> M(numa_number, 0.0);
@@ -379,6 +386,7 @@ void VM::calculateModelValue() {
 		C[node] += usage;
 		total_CPU_usage += usage;
 	}
+	printf("total_CPU_usage=%.2lf\n", total_CPU_usage);
 	// 然后再normalized C
 	for(int i = 0; i < C.size(); ++i) {
 		C[i] = C[i] / total_CPU_usage;
@@ -389,6 +397,7 @@ void VM::calculateModelValue() {
 	for(auto mem : memory_on_each_node) {
 		total_mem += mem;
 	}
+	printf("total_mem=%.2lf\n", total_mem);
 	// normalize M
 	for(int i = 0; i < M.size(); ++i) {
 		M[i] = memory_on_each_node[i] / total_mem;
