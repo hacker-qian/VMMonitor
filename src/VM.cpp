@@ -148,9 +148,11 @@ void VM::getCPUStat() {
 	    virResetError(&err);
 	}else{
 		vCPU_list.clear();
-		vCPU2pCPU.clear();
-		pCPU2vCPU.clear();
 		vCPU_list.resize(n_vCPU);
+		pCPU_set.clear();
+		vCPU2pCPU.clear();
+		pCPU2vCPU.clear();		
+		printf("VM当前vCPU个数:%d\n", n_vCPU);
 		for(int i = 0; i < n_vCPU; ++i) {
 			int vcpu = vcpu_info_list[i].number;
 			int pcpu = vcpu_info_list[i].cpu;
@@ -158,6 +160,7 @@ void VM::getCPUStat() {
 			pCPU_set.insert(pcpu);
 			vCPU2pCPU[vcpu] = pcpu;
 			pCPU2vCPU[pcpu] = vcpu;
+			printf("vCPU:%d\tpCPU:%d\n", vpu, pcpu);
 		}
 		
 	}
@@ -235,13 +238,12 @@ void VM::getCPUStat() {
             return;
         }
 
-       
-        double elapsedTime = (vcpu_timestamp_usec - last_vcpu_timestamp_usec) / 1000000.0;
         usage = (now_params[pos].value.ul - then_params[pos].value.ul) / 
         				(vcpu_timestamp_usec - last_vcpu_timestamp_usec) / 10;        
 
         int vcpu = pCPU2vCPU[i];
         vCPU_usage_map[vcpu] = usage;
+        printf("pCPU:%d vCPU:%d  usage:%.2lf\n", i, vcpu, uasge);
     }
 
 }
@@ -293,12 +295,9 @@ void VM::getPerfEventStat() {
     " -x,  -p " + to_string(pid) +" sleep " + to_string(sampling_duration) +" 2>&1";
     FILE* pipe = popen(cmd.c_str(), "r");
     if (!pipe) throw std::runtime_error("popen() failed!");
-
-    printf("pid:%u sampling_duration:%.2lf\n", pid, sampling_duration);
     try {
         while (!feof(pipe)) {
             if (fgets(buffer, BUF_SIZE, pipe) != NULL) {
-            	printf("get line:%s\n", buffer);
                 char *p = buffer;
                 while(p) {
                     if(isalpha(*p)) break;
