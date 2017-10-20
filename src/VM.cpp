@@ -351,6 +351,8 @@ void VM::calculateModelValue() {
 		alpha = 0;
 	}
 
+	alpha = mpki / mpki_high;
+
 	if(pps >= pps_high) {
 		beta = 2;
 		gama = 3;
