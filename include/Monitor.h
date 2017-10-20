@@ -48,7 +48,7 @@ class VM;
 class Monitor {
 public:
 	Monitor(int numa_num, int cpu_num, const char* connect_str):
-						boundedBuffer(128),	numa_number(numa_num), cpu_number(cpu_num)
+						boundedBuffer(512),	numa_number(numa_num), cpu_number(cpu_num)
 									 								 
 
 	{

@@ -516,7 +516,7 @@ void Monitor::start() {
 		for(auto &it : vm_infos_map) {
 			VM &vm = it.second;
 			vm.start();
-			vm.printVMInfo();
+			//vm.printVMInfo();
 			ModelValue mv = vm.getModelValue();
 			boundedBuffer.put(mv);
 		}
