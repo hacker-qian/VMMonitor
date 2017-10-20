@@ -333,6 +333,7 @@ void VM::start() {
 }
 
 void VM::printVMInfo() {
+	printf("==========================\n");
 	printf("%s:\n", vm_name);
 	printf("PPS:\t%.2lf\n", packets_per_sec);
 	printf("KBPS:\t%.2lf\n", KB_per_sec);
@@ -340,7 +341,7 @@ void VM::printVMInfo() {
 	for(int i = 0; i < numa_number; ++i) {
 		printf("Node[%d]: %llu\n", i, memory_on_each_node[i]);
 	}
-	printf("VM has %d\n vCPU.\n", vCPU_usage_map.size());
+	printf("VM has %d vCPU.\n", vCPU_usage_map.size());
 	for(auto it : vCPU_usage_map) {
 		printf("vCPU%d usage:%.2lf\n", it.first, it.second);
 	}
@@ -348,8 +349,8 @@ void VM::printVMInfo() {
 	printf("instructions:%llu\n", instructions);
 	printf("mem_load_uops_retired_llc_miss:%llu\n", mem_load_uops_retired_llc_miss);
 	double cpi = cycles/(double)instructions;
-	double mem_access_per_instruction = mem_load_uops_retired_llc_miss/(double)instructions;
-	printf("cpi:%.2lf\n", cpi);
-	printf("mem_access_per_instruction:%.2lf\n", mem_access_per_instruction);
+	double mem_access_per_instruction = mem_load_uops_retired_llc_miss/(instructions/1000.0);
+	printf("CPI:%.3lf\n", cpi);
+	printf("MAPKI:%.3lf\n", mem_access_per_instruction);
 }
 
