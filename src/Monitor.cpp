@@ -566,6 +566,7 @@ void Monitor::startServer() {
     // 不停从boundBuffer读数据，然后序列化成json，然后发送
     while(1) {
     	ModelValue mv = boundedBuffer.take();
+    	printf("Take ModelValue, value=%.2lf\n", mv.value);
     	string json = "{";
 		int cnt = 1;
 		json += "\"" + VM_CNT + "\":" + to_string(cnt) + ",";
@@ -584,8 +585,7 @@ void Monitor::startServer() {
 		jarray += ']';
 		json += "\"" + VM_INFO + "\":" + jarray + "}\n";
 
-		const char *jstr = json.c_str();
-		printf("send json:%s\n", json);
+		const char *jstr = json.c_str();		
 
 		if(send(connfd, jstr, json.size(), 0) == -1){
 	        cout << "send error: " << strerror(errno) << endl;
