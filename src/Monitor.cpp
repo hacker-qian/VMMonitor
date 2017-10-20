@@ -89,7 +89,7 @@ int Monitor::init() {
 
 	// 初始化NUMA节点和CPU信息
 	int err;
-	for(int node = 0; node < numa_node; ++node) {
+	for(int node = 0; node < numa_number; ++node) {
 		struct bitmask *cpus;
 		cpus = numa_allocate_cpumask();
 		err = numa_node_to_cpus(node, cpus);
@@ -101,10 +101,10 @@ int Monitor::init() {
 				}
 		}else{
 			fprintf(stderr, "numa_node_to_cpus() failed.");
-			numa_free_cpumask();
+			numa_free_cpumask(cpus);
         	return -1;
 		}
-		numa_free_cpumask();
+		numa_free_cpumask(cpus);
 	}
 	
 	return 0;
