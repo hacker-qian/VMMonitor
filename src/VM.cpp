@@ -293,9 +293,12 @@ void VM::getPerfEventStat() {
     " -x,  -p " + to_string(pid) +" sleep " + to_string(sampling_duration) +" 2>&1";
     FILE* pipe = popen(cmd.c_str(), "r");
     if (!pipe) throw std::runtime_error("popen() failed!");
+
+    printf("pid:%u sampling_duration:%.2lf\n", pid, sampling_duration);
     try {
         while (!feof(pipe)) {
             if (fgets(buffer, BUF_SIZE, pipe) != NULL) {
+            	printf("get line:%s\n", buffer);
                 char *p = buffer;
                 while(p) {
                     if(isalpha(*p)) break;
@@ -318,6 +321,7 @@ void VM::getPerfEventStat() {
         pclose(pipe);
         return;        
     }   
+
     pclose(pipe);    
 }
 
