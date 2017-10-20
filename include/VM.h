@@ -15,19 +15,16 @@
 #include <set>
 #include <list>
 #include <map>
-
+#include "ModelValue.h"
+#include <ctime>
+#include <chrono>
 
 #define VM_NAME_LEN 64
 #define PCI_STR_LEN 8
 #define  NETDEV_LEN 32
 #define  MAX_PATH_LEN 64
 
-// 模型需要的值
-struct ModelValue{
-	double 				value;
-	unsigned long 		timestamp;
-    std::string 				date;
-};
+
 
 /*
 **	Virtual machine object.
@@ -92,6 +89,7 @@ public:
 
 	void start();
 	void printVMInfo();
+	ModelValue getModelValue();
 
 	~VM() {
 		if(then_params)

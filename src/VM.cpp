@@ -8,7 +8,6 @@ void VM::getNetworkIOStat() {
 	char tx_pack_path[MAX_PATH_LEN];
 	char rx_bytes_path[MAX_PATH_LEN];
 	char tx_bytes_path[MAX_PATH_LEN];
-	printf("netdev:%s\tvf_node:%d\n", netdev, vf_no);
 	snprintf(rx_pack_path, MAX_PATH_LEN, "/sys/class/net/%s/vf%d/statistics/rx_packets", netdev, vf_no);
 	snprintf(tx_pack_path, MAX_PATH_LEN, "/sys/class/net/%s/vf%d/statistics/tx_packets", netdev, vf_no);
 	snprintf(rx_bytes_path, MAX_PATH_LEN, "/sys/class/net/%s/vf%d/statistics/rx_bytes", netdev, vf_no);
@@ -456,5 +455,20 @@ void VM::printVMInfo() {
 	printf("CPI:%.3lf\n", cpi);
 	printf("MAPKI:%.3lf\n", mem_access_per_instruction);
 	printf("RAIE:%.3lf\n", raie);
+}
+
+ModelValue VM::getModelValue() {
+	ModelValue val;
+	val.value = raie;
+	struct timeval timestamp;
+	gettimeofday(&timestamp, NULL);
+	val.timestamp = timestamp.tv_sec * 1000000 + timestamp.tv_usec;
+	val.vm_name = vm_name; 
+
+	system_clock::time_point p = system_clock::now();
+  	std::time_t t = system_clock::to_time_t(p);
+  	val.date = std::ctime(&t)
+
+  	return val;
 }
 

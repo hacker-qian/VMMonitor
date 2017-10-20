@@ -24,6 +24,13 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <map>
+#include <chrono>
+#include <thread>
+#include <mutex>
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+
 #include "VM.h"
 
 #define  NETDEV_LEN 32
@@ -40,7 +47,7 @@ class VM;
 class Monitor {
 public:
 	Monitor(int numa_num, int cpu_num, const char* connect_str):
-									 numa_number(numa_num), cpu_number(cpu_num)								 
+						boundedBuffer(128),	numa_number(numa_num), cpu_number(cpu_num)
 									 								 
 
 	{
@@ -125,6 +132,9 @@ private:
              								void *opaque ATTRIBUTE_UNUSED);
 
 
+	// 用来与界面程序通信的变量和函数
+	BoundedBuffer		 boundedBuffer;
+	void startServer();
 
 
 };

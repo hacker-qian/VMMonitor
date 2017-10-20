@@ -506,6 +506,8 @@ void Monitor::start() {
 		printf("number of vCPU:\t %u\n", vm_info.vCPU_list.size());
 		printf("----------------------------------------------\n");
 	}
+	// 启动服务器线程
+	std::thread server(Monitor::startServer);
 	while(1) {
 		if (virEventRunDefaultImpl() < 0) {
             fprintf(stderr, "Failed to run event loop: %s\n",
@@ -515,7 +517,80 @@ void Monitor::start() {
 			VM &vm = it.second;
 			vm.start();
 			vm.printVMInfo();
+			ModelValue mv = vm.getModelValue();
+			boundedBuffer.put(mv);
 		}
-		sleep(1);
+		std::chrono::milliseconds sleepDuration(monitor_interval);
+        std::this_thread::sleep_for(sleepDuration);
 	}
+	server.join();
+}
+
+
+// 用来与界面程序通信的函数
+void Monitor::startServer() {
+	const static string VM_CNT = "vm_cnt";
+	const static string VM_INFO = "vm_info";
+	const static string VM_NAME = "vm_name";
+	const static string VM_RAIE = "raie";
+	const static string VM_TIMESTAMP = "timestamp";
+
+	int    listenfd, connfd;
+    struct sockaddr_in     servaddr;
+    int     n;
+
+    if( (listenfd = socket(AF_INET, SOCK_STREAM, 0)) == -1 ){
+	    printf("create socket error:%s\n", strerror(errno));
+	    return;
+    }
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servaddr.sin_port = htons(6666);
+
+    if(::bind(listenfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) == -1){
+	    printf("bind socket error: %s\n", strerror(errno));
+	    return;
+    }
+
+    if( listen(listenfd, 10) == -1){
+	    printf("listen socket error: %s\n", strerror(errno));
+	    return;
+    }    
+    printf("wait for client to connect.\n");
+    if( (connfd = accept(listenfd, (struct sockaddr*)NULL, NULL)) == -1){
+        printf("accept socket error: %s\n", strerror(errno));
+        return;
+    }
+
+    // 不停从boundBuffer读数据，然后序列化成json，然后发送
+    while(1) {
+    	ModelValue mv = boundedBuffer.take();
+    	string json = "{";
+		int cnt = 1;
+		json += "\"" + VM_CNT + "\":" + to_string(cnt) + ",";
+		string jarray = "[";
+		for(int i = 0; i < cnt; ++i) {
+			string vmInfo = "{";
+			vmInfo += "\"" + VM_NAME + "\": \"" + mv.vm_name + "\",";
+			vmInfo += "\"" + VM_RAIE + "\":" + to_string(mv.value) + ",";
+			vmInfo += "\"" + VM_TIMESTAMP + "\":" + to_string(mv.timestamp);
+			vmInfo += '}';
+			if(i != cnt-1) {
+				vmInfo += ',';
+			}
+			jarray += vmInfo;
+		}
+		jarray += ']';
+		json += "\"" + VM_INFO + "\":" + jarray + "}\n";
+
+		const char *jstr = json.c_str();
+		printf("send json:%s\n", json);
+
+		if(send(connfd, jstr, json.size(), 0) == -1){
+	        cout << "send error: " << strerror(errno) << endl;
+	        close(connect_fd);  
+	        return;  
+	    }
+    }
 }
