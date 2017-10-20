@@ -365,8 +365,7 @@ void VM::calculateModelValue() {
 
 	int numa_number = cpu_list_in_node.size();
 
-	printf("standard_mapki=%.2lf standard_pps=%.2lf 
-		mpki_high=%.2lf mpki_low=%.2lf pps_high=%.2lf pps_low=%.2lf\n", standard_mapki,
+	printf("standard_mapki=%.2lf standard_pps=%.2lf mpki_high=%.2lf mpki_low=%.2lf pps_high=%.2lf pps_low=%.2lf\n", standard_mapki,
 		standard_pps, mpki_high, mpki_low, pps_high, pps_low);
 
 	printf("alpha=%.2lf beta=%.2lf gama=%.2lf numa_number=%d\n", alpha, beta, gama, numa_number);
