@@ -362,7 +362,70 @@ void VM::calculateModelValue() {
 		beta = gama = 0;
 	}
 
-	
+	int numa_number = cpu_list_in_node.size();
+	// 向量C, M
+	vector<double> C(numa_number, 0.0);
+	vector<double> M(numa_number, 0.0);
+
+	double total_CPU_usage = 0;
+	// vCPU使用率
+	for(auto it : vCPU_usage_map) {
+		int vcpu = it.first;
+		double usage = it.second;
+		// 看当前vcpu对应哪个pCPU，对应哪个NUMA节点
+		int pcpu = vCPU2pCPU[vcpu];
+		int node = cpu_to_node_map[pcpu];
+		C[node] += usage;
+		total_CPU_usage += usage;
+	}
+	// 然后再normalized C
+	for(int i = 0; i < C.size(); ++i) {
+		C[i] = C[i] / total_CPU_usage;
+	}
+
+	// 统计M
+	double total_mem = 0;
+	for(auto mem : memory_on_each_node) {
+		total_mem += mem;
+	}
+	// normalize M
+	for(int i = 0; i < M.size(); ++i) {
+		M[i] = memory_on_each_node[i] / total_mem;
+	}
+
+	// UAPM是 N x N矩阵
+	vector<vector<double>> UAPM(numa_number, vector<double>(numa_number, 0.0));
+	for(int i = 0; i < numa_number; ++i) {
+		for(int j = 0; j < numa_number; ++j) {
+			UAPM[i][j] = C[i]*M[j];
+		}
+	}
+
+
+	vector<double> UANM = M;
+	vector<vector<double>> UANP = UAPM;
+
+	// 计算RAIE的值
+	double valueAPM = 0;
+	for(int i = 0; i < numa_number; ++i) {
+		for(int j = 0; j < numa_number; ++j) {
+			valueAPM += (UAPM[i][j] * APM[i][j]);
+		}
+	}
+	double valueANM = 0;
+	for(int i = 0; i < numa_number; ++i) {
+		valueANM += (UANM[i] * ANM[i]);
+	}
+
+	double valueANP = 0;
+	for(int i = 0; i < numa_number; ++i) {
+		for(int j = 0; j < numa_number; ++j) {
+			valueANP += (UANP[i][j] * ANP[i][j]);
+		}
+	}
+
+	raie = alpha * valueAPM + beta * valueANM + gama * valueANP;
+
 }
 
 
@@ -386,5 +449,6 @@ void VM::printVMInfo() {
 	double mem_access_per_instruction = mem_load_uops_retired_llc_miss/(instructions/1000.0);
 	printf("CPI:%.3lf\n", cpi);
 	printf("MAPKI:%.3lf\n", mem_access_per_instruction);
+	printf("RAIE:%.3lf\n", raie);
 }
 

@@ -343,6 +343,12 @@ int Monitor::initVMInfo() {
 		vm_info.setSampleData(sampling_duration);
 		vm_info.setStdPPS(io_threshold);
 		vm_info.setStdMAPKI(mapki);
+		vm_info.setNodeCPUListMap(cpu_list_in_node);
+		vm_info.setCPU2NodeMap(cpu_to_node_map);
+		vm_info.setAPM(APM);
+		vm_info.setANM(ANM);
+		vm_info.setANP(ANP);
+
 		vm_infos_map[dom_id] = vm_info;
 		virDomainPtr dom_ptr;
 		dom_ptr = virDomainLookupByID(conn, dom_id);

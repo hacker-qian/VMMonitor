@@ -69,7 +69,27 @@ public:
 	void setStdMAPKI(unsigned long long mapki){
 		standard_mapki = mapki;
 	}
+
+	void setNodeCPUListMap(std::map<int, std::vector<int>> nclm){
+		cpu_list_in_node = nclm;
+	}
+
+	void setCPU2NodeMap(std::map<int, int> c2nm) {
+		cpu_to_node_map = c2nm;
+	}
+
+	void setAPM(std::vector<std::vector<double>> apm) {
+			APM = apm;
+	}	
+
+	void setANM(std::vector<double>	anm) {
+		ANM = anm;
+	}
 	
+	void setANP(std::vector<std::vector<double>> anp) {
+		ANP = anp;
+	}
+
 	void start();
 	void printVMInfo();
 
@@ -100,9 +120,20 @@ private:
 	double 					alpha;
 	double 					beta;
 	double 					gama;
+	double 					raie;
 	// 作为阈值标准的pps
 	double					standard_pps;
 	double 					standard_mapki;
+
+	std::vector<std::vector<double>> 	APM;
+	std::vector<std::vector<double>> 	ANP;
+	std::vector<double>		ANM;
+
+
+	// cpu_list_in_node[0]表示节点0有哪些CPU
+	std::map<int, std::vector<int>>		cpu_list_in_node;
+	// 保存CPU->该CPU属于哪个节点的映射
+	std::map<int, int>		cpu_to_node_map;
 
 
 
