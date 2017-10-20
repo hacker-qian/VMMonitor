@@ -433,7 +433,8 @@ void VM::calculateModelValue() {
 			valueANP += (UANP[i][j] * ANP[i][j]);
 		}
 	}
-
+	printf("alpha=%.2lf valueAPM=%.2lf beta=%.2lf valueANM=%.2lf gama=%.2lf valueANP=%.2lf\n",
+		alpha, valueAPM, beta, valueANM, gama, valueANP);
 	raie = alpha * valueAPM + beta * valueANM + gama * valueANP;
 
 }
