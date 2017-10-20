@@ -467,7 +467,7 @@ ModelValue VM::getModelValue() {
 
 	std::chrono::system_clock::time_point p = std::chrono::system_clock::now();
   	std::time_t t = std::chrono::system_clock::to_time_t(p);
-  	val.date = std::ctime(&t)
+  	val.date = std::ctime(&t);
 
   	return val;
 }
