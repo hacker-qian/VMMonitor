@@ -101,10 +101,10 @@ int Monitor::init() {
 				}
 		}else{
 			fprintf(stderr, "numa_node_to_cpus() failed.");
-		//	numa_free_cpumask(cpus);
+			numa_free_cpumask(cpus);
         	return -1;
 		}
-		//numa_free_cpumask(cpus);
+		numa_free_cpumask(cpus);
 	}
 	
 	return 0;
