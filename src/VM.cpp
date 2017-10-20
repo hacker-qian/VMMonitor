@@ -379,8 +379,10 @@ void VM::calculateModelValue() {
 		C[node] += usage;
 		total_CPU_usage += usage;
 	}
-	if(total_CPU_usage < 0) 
+	if(total_CPU_usage < 0) {
+		raie = 0;
 		return;
+	}
 	
 	// 然后再normalized C
 	for(int i = 0; i < C.size(); ++i) {
