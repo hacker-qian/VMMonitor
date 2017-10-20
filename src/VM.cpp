@@ -79,8 +79,8 @@ void VM::getNetworkIOStat() {
 	total_packets = (rx_packets - last_rx_packets) + (tx_packets - last_tx_packets);
 	total_KB = (rx_bytes - last_rx_bytes)/1024.0 + (tx_bytes - last_tx_bytes)/1024.0;
 
-	// 历史值占0.4
-	double p = 0.4;
+	// 历史值占p
+	double p = 0;
 	packets_per_sec = packets_per_sec * p + (total_packets / elapsedTime) * (1-p);	
 	KB_per_sec = KB_per_sec * p + (total_KB / elapsedTime) * (1-p);
 	if(KB_per_sec < 0)
@@ -152,7 +152,6 @@ void VM::getCPUStat() {
 		pCPU_set.clear();
 		vCPU2pCPU.clear();
 		pCPU2vCPU.clear();		
-		printf("VM当前vCPU个数:%d\n", n_vCPU);
 		for(int i = 0; i < n_vCPU; ++i) {
 			int vcpu = vcpu_info_list[i].number;
 			int pcpu = vcpu_info_list[i].cpu;
@@ -160,7 +159,6 @@ void VM::getCPUStat() {
 			pCPU_set.insert(pcpu);
 			vCPU2pCPU[vcpu] = pcpu;
 			pCPU2vCPU[pcpu] = vcpu;
-			printf("vCPU:%d\tpCPU:%d\n", vcpu, pcpu);
 		}
 		
 	}
@@ -243,7 +241,6 @@ void VM::getCPUStat() {
 
         int vcpu = pCPU2vCPU[i];
         vCPU_usage_map[vcpu] = usage;
-        printf("pCPU:%d vCPU:%d  usage:%.2lf\n", i, vcpu, usage);
     }
 
 }
@@ -330,6 +327,44 @@ void VM::start() {
 	getCPUStat();
 	getPerfEventStat();
 }
+
+void VM::calculateModelValue() {
+	double p = 0.6;
+
+	double mpki_high = standard_mapki * p;
+	double mpki_low = standard_mapki * (1-p);
+	double pps_high = standard_pps * p;
+	double pps_low = standard_pps * (1-p);
+
+	// 确定alpha, beta, gama
+	double mpki = mem_load_uops_retired_llc_miss/(instructions/1000.0);
+	double pps = packets_per_sec;
+
+	if(mpki >= mpki_high) {
+		alpha = 3;
+	}else if(mpki >= mpki_low) {
+		alpha = 2;
+	}else if(mpki > 0) {
+		alpha = 1;
+	}else if(mpki < 1e-6) {
+		// 相当于0了
+		alpha = 0;
+	}
+
+	if(pps >= pps_high) {
+		beta = gama = 3;
+	}else if(pps >= pps_low) {
+		beta = gama = 2;
+	}else if(pps > 0) {
+		beta = gama = 1;
+	}else if(pps < 1e-6) {
+		// 相当于0了
+		beta = gama = 0;
+	}
+
+	
+}
+
 
 void VM::printVMInfo() {
 	printf("==========================\n");

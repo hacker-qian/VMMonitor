@@ -16,6 +16,7 @@
 #include <errno.h>
 #include <vector>
 #include <list>
+#include <set>
 #include <algorithm>
 #include <libvirt/libvirt.h>
 #include <libvirt/virterror.h>
@@ -55,8 +56,15 @@ public:
 	int init();
 	void start();
 private:
+	// 有多少个NUMA节点
 	int						numa_number;
+	// 有多少个CPU
 	int 					cpu_number;
+	
+	// cpu_list_in_node[0]表示节点0有哪些CPU
+	std::map<int, std::vector<int>>		cpu_list_in_node;
+	// 保存CPU->该CPU属于哪个节点的映射
+	std::map<int, int>		cpu_to_node_map;
 
 	// which net device should be monitored
 	char					netdev[NETDEV_LEN];
@@ -79,6 +87,7 @@ private:
 
 	// I/O intensive threshold
 	unsigned long long 		io_threshold;
+	unsigned long long		mapki;
 
 	// Containing all running vm. Key=dom_id.
 	std::map<int, VM> 		vm_infos_map;	

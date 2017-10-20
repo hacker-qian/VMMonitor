@@ -62,6 +62,13 @@ public:
 	void setSampleData(double sd) {
 		sampling_duration = sd;
 	}
+
+	void setStdPPS(unsigned long long pps){
+		standard_pps = pps;
+	}
+	void setStdMAPKI(unsigned long long mapki){
+		standard_mapki = mapki;
+	}
 	
 	void start();
 	void printVMInfo();
@@ -93,6 +100,9 @@ private:
 	double 					alpha;
 	double 					beta;
 	double 					gama;
+	// 作为阈值标准的pps
+	double					standard_pps;
+	double 					standard_mapki;
 
 
 
@@ -178,6 +188,9 @@ private:
 	void getPerfEventStat();
 
 	void extractPerfEvents(virTypedParameter *params, int nparams);
+
+	// 使用模型计算值
+	void calculateModelValue();
 	
 };
 

@@ -87,6 +87,25 @@ int Monitor::init() {
 	}
 	fclose(netdev_numanode_file);
 
+	// 初始化NUMA节点和CPU信息
+	int err;
+	for(int node = 0; node < numa_node; ++node) {
+		struct bitmask *cpus;
+		cpus = numa_allocate_cpumask();
+		err = numa_node_to_cpus(node, cpus);
+		if (err >= 0) {
+			for (unsigned int i = 0; i < cpus->size; i++)
+				if (numa_bitmask_isbitset(cpus, i)) {
+					cpu_list_in_node[node].push_back(i);
+					cpu_to_node_map[i] = node;			
+				}
+		}else{
+			fprintf(stderr, "numa_node_to_cpus() failed.");
+			numa_free_cpumask();
+        	return -1;
+		}
+		numa_free_cpumask();
+	}
 	
 	return 0;
 
@@ -157,7 +176,12 @@ int Monitor::parseConf() {
 
 			sscanf(line, "io_threshold=%llu", &io_threshold);			
 
-		} else if(strstr(line, "APM") != NULL){
+		}else if(strstr(line, "mapki") != NULL){
+
+			sscanf(line, "mapki=%llu", &mapki);			
+
+		}
+		 else if(strstr(line, "APM") != NULL){
 			int n, m;			
 			sscanf(line, "APM=%d %d", &n, &m);
 			APM.resize(n, vector<double>(m, 0.0));			
@@ -317,6 +341,8 @@ int Monitor::initVMInfo() {
 		vm_info.setNetDev(netdev);
 		vm_info.setNUMANumber(numa_number);
 		vm_info.setSampleData(sampling_duration);
+		vm_info.setStdPPS(io_threshold);
+		vm_info.setStdMAPKI(mapki);
 		vm_infos_map[dom_id] = vm_info;
 		virDomainPtr dom_ptr;
 		dom_ptr = virDomainLookupByID(conn, dom_id);
@@ -428,8 +454,17 @@ void Monitor::start() {
 	printf("netdev_pci_slot_str:\t%s\n", netdev_pci_slot_str);
 	printf("netdev_pci_funct_str:\t%s\n", netdev_pci_funct_str);
 	printf("netdev is attated to Node:\t%d\n", netdev_numanode);
-	printf("monitor_interval:\t%u second\n", monitor_interval);
+	printf("monitor_interval:\t%.4lf second\n", monitor_interval);
 	printf("io_threshold:\t%llu\n", io_threshold);
+
+	printf("\n====================NUMA INFO====================\n");
+	for(auto it : cpu_list_in_node) {
+		printf("Node[%d]: ", it.first);
+		for(auto cpuid : it.second) {
+			printf("%d ", cpuid);
+		}
+		printf("\n");
+	}
 
 	printf("\n====================APM====================\n");
 	for(int i = 0; i < APM.size(); ++i) {
