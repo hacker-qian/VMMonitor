@@ -160,7 +160,7 @@ void VM::getCPUStat() {
 			pCPU_set.insert(pcpu);
 			vCPU2pCPU[vcpu] = pcpu;
 			pCPU2vCPU[pcpu] = vcpu;
-			printf("vCPU:%d\tpCPU:%d\n", vpu, pcpu);
+			printf("vCPU:%d\tpCPU:%d\n", vcpu, pcpu);
 		}
 		
 	}
@@ -243,7 +243,7 @@ void VM::getCPUStat() {
 
         int vcpu = pCPU2vCPU[i];
         vCPU_usage_map[vcpu] = usage;
-        printf("pCPU:%d vCPU:%d  usage:%.2lf\n", i, vcpu, uasge);
+        printf("pCPU:%d vCPU:%d  usage:%.2lf\n", i, vcpu, usage);
     }
 
 }
