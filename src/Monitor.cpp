@@ -520,7 +520,7 @@ void Monitor::start() {
 			ModelValue mv = vm.getModelValue();
 			boundedBuffer.put(mv);
 		}
-		std::chrono::milliseconds sleepDuration(monitor_interval);
+		std::chrono::milliseconds sleepDuration((int)monitor_interval);
         std::this_thread::sleep_for(sleepDuration);
 	}
 	server.join();
@@ -589,7 +589,7 @@ void Monitor::startServer() {
 
 		if(send(connfd, jstr, json.size(), 0) == -1){
 	        cout << "send error: " << strerror(errno) << endl;
-	        close(connect_fd);  
+	        close(connfd);  
 	        return;  
 	    }
     }
