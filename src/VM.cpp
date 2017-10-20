@@ -326,6 +326,7 @@ void VM::start() {
 	getMemoryStat();
 	getCPUStat();
 	getPerfEventStat();
+	calculateModelValue();
 }
 
 void VM::calculateModelValue() {
