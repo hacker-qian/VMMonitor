@@ -30,6 +30,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include "BoundedBuffer.h"
 
 #include "VM.h"
 

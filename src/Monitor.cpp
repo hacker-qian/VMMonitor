@@ -507,7 +507,7 @@ void Monitor::start() {
 		printf("----------------------------------------------\n");
 	}
 	// 启动服务器线程
-	std::thread server(Monitor::startServer);
+	std::thread server(startServer);
 	while(1) {
 		if (virEventRunDefaultImpl() < 0) {
             fprintf(stderr, "Failed to run event loop: %s\n",
