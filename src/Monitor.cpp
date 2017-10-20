@@ -62,6 +62,26 @@ int Monitor::init() {
 		return -1;
 	}
 
+	// 初始化NUMA节点和CPU信息
+	int err;
+	for(int node = 0; node < numa_number; ++node) {
+		struct bitmask *cpus;
+		cpus = numa_allocate_cpumask();
+		err = numa_node_to_cpus(node, cpus);
+		if (err >= 0) {
+			for (unsigned int i = 0; i < cpus->size; i++)
+				if (numa_bitmask_isbitset(cpus, i)) {
+					cpu_list_in_node[node].push_back(i);
+					cpu_to_node_map[i] = node;			
+				}
+		}else{
+			fprintf(stderr, "numa_node_to_cpus() failed.");
+			numa_free_cpumask(cpus);
+        	return -1;
+		}
+		numa_free_cpumask(cpus);
+	}
+
 	ret = initVMInfo();
 	if(ret != 0) {
 		fprintf(stderr, "init_vminfo failed!\n");
@@ -87,25 +107,7 @@ int Monitor::init() {
 	}
 	fclose(netdev_numanode_file);
 
-	// 初始化NUMA节点和CPU信息
-	int err;
-	for(int node = 0; node < numa_number; ++node) {
-		struct bitmask *cpus;
-		cpus = numa_allocate_cpumask();
-		err = numa_node_to_cpus(node, cpus);
-		if (err >= 0) {
-			for (unsigned int i = 0; i < cpus->size; i++)
-				if (numa_bitmask_isbitset(cpus, i)) {
-					cpu_list_in_node[node].push_back(i);
-					cpu_to_node_map[i] = node;			
-				}
-		}else{
-			fprintf(stderr, "numa_node_to_cpus() failed.");
-			numa_free_cpumask(cpus);
-        	return -1;
-		}
-		numa_free_cpumask(cpus);
-	}
+	
 	
 	return 0;
 
