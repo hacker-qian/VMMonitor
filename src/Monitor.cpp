@@ -143,10 +143,17 @@ int Monitor::parseConf() {
 			netdev_pci_funct_val = strtol(netdev_pci_funct_str, NULL, 16);			
 
 		} else if(strstr(line, "monitor_interval") != NULL){
+			unsigned int tmp = 0;
+			sscanf(line, "monitor_interval=%u", &tmp);
+			monitor_interval = tmp/1000.0;			
 
-			sscanf(line, "monitor_interval=%u", &monitor_interval);			
+		} else if(strstr(line, "sampling_duration") != NULL){
+			unsigned int tmp = 0;
+			sscanf(line, "sampling_duration=%u", &tmp);
+			sampling_duration = tmp/1000.0;			
 
-		} else if(strstr(line, "io_threshold") != NULL){
+		} 
+		else if(strstr(line, "io_threshold") != NULL){
 
 			sscanf(line, "io_threshold=%llu", &io_threshold);			
 
@@ -309,6 +316,7 @@ int Monitor::initVMInfo() {
 		VM vm_info;
 		vm_info.setNetDev(netdev);
 		vm_info.setNUMANumber(numa_number);
+		vm_info.setSampleData(sampling_duration);
 		vm_infos_map[dom_id] = vm_info;
 		virDomainPtr dom_ptr;
 		dom_ptr = virDomainLookupByID(conn, dom_id);

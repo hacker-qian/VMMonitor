@@ -58,6 +58,10 @@ public:
 		strcpy(netdev, nd);
 		netdev[len] = '\0';
 	}
+
+	void setSampleData(double sd) {
+		sampling_duration = sd;
+	}
 	
 	void start();
 	void printVMInfo();
@@ -118,6 +122,7 @@ private:
 	unsigned long long			instructions;	
 	unsigned long long			cache_references;	
 	unsigned long long			cache_misses;
+	unsigned long long			mem_load_uops_retired_llc_miss;
 
 	/*********** Performance data ********end *********/
 
@@ -151,6 +156,9 @@ private:
 	
 	// The corresponding process id of this VM.
 	unsigned int 				pid;
+
+	// 每次采样持续的时间 （s)
+	double			 			sampling_duration;
 
 	/* valid state include:
 	** 1,Suspended; 2,Resumed;

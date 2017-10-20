@@ -267,6 +267,7 @@ void VM::extractPerfEvents(virTypedParameter *params, int nparams) {
 
 // 获取perf数据
 void VM::getPerfEventStat() {
+	/* 用libvirt的数据非常不准确
 	virError err;
 	virDomainStatsRecord **records = NULL;
 	virDomainPtr doms[2] = {dom_ptr, NULL};
@@ -285,6 +286,39 @@ void VM::getPerfEventStat() {
 	}
 
 	virDomainStatsRecordListFree(records);
+	*/
+	const static unsigned BUF_SIZE = 128;
+	char buffer[BUF_SIZE];
+    string cmd = "sudo perf stat -e cycles,instructions,mem_load_uops_retired.llc_miss,"
+    " -x,  -p " + to_string(vmInfo.getPID()) +" sleep " + to_string(sampling_duration) +" 2>&1";
+    FILE* pipe = popen(cmd.c_str(), "r");
+    if (!pipe) throw std::runtime_error("popen() failed!");
+    try {
+        while (!feof(pipe)) {
+            if (fgets(buffer, BUF_SIZE, pipe) != NULL) {
+                char *p = buffer;
+                while(p) {
+                    if(isalpha(*p)) break;
+                    ++p;
+                }   
+                if(*p == 'c') {
+                    // cycles
+                    cycles = strtoul(buffer, NULL, 10);                                     
+                } else if(*p == 'i') {
+                    // instrution
+                    instructions = strtoul(buffer, NULL, 10);
+                               
+                } else if(*p == 'm') {
+                    // mem_load_uops_retired.llc_miss
+                    mem_load_uops_retired_llc_miss = strtoul(buffer, NULL, 10);
+                } 
+            }   
+        }   
+    } catch (...) {
+        pclose(pipe);
+        ret = -1;
+    }   
+    pclose(pipe);    
 }
 
 void VM::start() {
@@ -308,14 +342,10 @@ void VM::printVMInfo() {
 	}
 	printf("CPU cycles:%llu\n", cycles);
 	printf("instructions:%llu\n", instructions);
-	printf("cache_references:%llu\n", cache_references);
-	printf("cache_misses:%llu\n", cache_misses);
-	double missRatio = cache_misses / (double)cache_references;
-	printf("cache miss ratio:%.2lf\n", missRatio);
-	double mpi = cache_misses / (double) instructions;
-	printf("cache miss per instrcution:%.2lf\n", mpi);
-	double mpki = cache_misses / (instructions/1000.0);
-	printf("cache miss per 1000 instrcution:%.2lf\n", mpki);
-
+	printf("mem_load_uops_retired_llc_miss:%llu\n", mem_load_uops_retired_llc_miss);
+	double cpi = cycles/(double)instructions;
+	double mem_access_per_instruction = mem_load_uops_retired_llc_miss/(double)instructions;
+	printf("cpi:%.2lf\n", cpi);
+	printf("mem_access_per_instruction:%.2lf\n", mem_access_per_instruction);
 }
 

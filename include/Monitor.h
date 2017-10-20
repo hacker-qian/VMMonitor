@@ -72,8 +72,10 @@ private:
 	// which numa node the NIC attached to 
 	int 					netdev_numanode;
 
-	// monitor interval(unit:second)
-	unsigned int 			monitor_interval;
+	// 每次采样的间隔(ms)
+	double		 			monitor_interval;
+	// 每次采样持续的时间 （ms)
+	double 					sampling_duration;
 
 	// I/O intensive threshold
 	unsigned long long 		io_threshold;
