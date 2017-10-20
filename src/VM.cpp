@@ -465,7 +465,7 @@ ModelValue VM::getModelValue() {
 	val.timestamp = timestamp.tv_sec * 1000000 + timestamp.tv_usec;
 	val.vm_name = vm_name; 
 
-	system_clock::time_point p = system_clock::now();
+	std::chron::system_clock::time_point p = system_clock::now();
   	std::time_t t = system_clock::to_time_t(p);
   	val.date = std::ctime(&t)
 
