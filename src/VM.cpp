@@ -352,11 +352,14 @@ void VM::calculateModelValue() {
 	}
 
 	if(pps >= pps_high) {
-		beta = gama = 3;
+		beta = 2;
+		gama = 3;
 	}else if(pps >= pps_low) {
-		beta = gama = 2;
+		beta = 1;
+		gama = 2;
 	}else if(pps > 0) {
-		beta = gama = 1;
+		beta = 0.5;
+		gama = 1;
 	}else if(pps < 1e-6) {
 		// 相当于0了
 		beta = gama = 0;
