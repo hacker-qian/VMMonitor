@@ -320,12 +320,22 @@ void VM::getPerfEventStat() {
     pclose(pipe);    
 }
 
+void VM::execute() {
+	std::chrono::milliseconds sleepDuration(sampling_period);
+	while(1) {
+		getNetworkIOStat();
+		getMemoryStat();
+		getCPUStat();
+		getPerfEventStat();
+		calculateModelValue();
+		putModelValue();
+		printVMInfo();
+        std::this_thread::sleep_for(sleepDuration);
+	}
+}
+
 void VM::start() {
-	getNetworkIOStat();
-	getMemoryStat();
-	getCPUStat();
-	getPerfEventStat();
-	calculateModelValue();
+	std::thread vm(&VM::start, this);
 }
 
 void VM::calculateModelValue() {
@@ -466,7 +476,7 @@ void VM::printVMInfo() {
 	printf("RAIE:%.3lf\n", raie);
 }
 
-ModelValue VM::getModelValue() {
+void VM::putModelValue() {
 	ModelValue val;
 	val.value = raie;
 	struct timeval timestamp;
@@ -477,7 +487,7 @@ ModelValue VM::getModelValue() {
 	std::chrono::system_clock::time_point p = std::chrono::system_clock::now();
   	std::time_t t = std::chrono::system_clock::to_time_t(p);
   	val.date = std::ctime(&t);
-
-  	return val;
+  	if(boundedBuffer)
+  		boundedBuffer->put(val);
 }
 

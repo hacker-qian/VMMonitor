@@ -42,8 +42,7 @@ public:
 		then_params = now_params = NULL;
 		vcpu_timestamp_usec = last_vcpu_timestamp_usec = -1;
 		KB_per_sec = packets_per_sec = 0;
-		//strcpy(netdev, "enp6s0");
-		//netdev[6] = '\0';
+		boundedBuffer = NULL;
 	}
 	const char* 						getVMName() const { return vm_name;}	
 
@@ -56,8 +55,9 @@ public:
 		netdev[len] = '\0';
 	}
 
-	void setSampleData(double sd) {
+	void setSampleData(double sd, int sp) {
 		sampling_duration = sd;
+		sampling_period = sp;
 	}
 
 	void setStdPPS(unsigned long long pps){
@@ -87,9 +87,13 @@ public:
 		ANP = anp;
 	}
 
+	void setBoundBuffer(BoundedBuffer	&bb) {
+		boundedBuffer = &bb;
+	}
+
 	void start();
 	void printVMInfo();
-	ModelValue getModelValue();
+	void putModelValue();
 
 	~VM() {
 		if(then_params)
@@ -100,7 +104,8 @@ public:
 
 
 private:
-	
+	// 队列
+	BoundedBuffer		 	   *boundedBuffer;
 
 	friend class 				Monitor;
 	
@@ -198,6 +203,8 @@ private:
 
 	// 每次采样持续的时间 （s)
 	double			 			sampling_duration;
+	// 每隔多久采样一次
+	int 						sampling_period; 
 
 	/* valid state include:
 	** 1,Suspended; 2,Resumed;

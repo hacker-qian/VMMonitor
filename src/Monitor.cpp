@@ -342,7 +342,7 @@ int Monitor::initVMInfo() {
 		VM vm_info;
 		vm_info.setNetDev(netdev);
 		vm_info.setNUMANumber(numa_number);
-		vm_info.setSampleData(sampling_duration);
+		vm_info.setSampleData(sampling_duration, monitor_interval);
 		vm_info.setStdPPS(io_threshold);
 		vm_info.setStdMAPKI(mapki);
 		vm_info.setNodeCPUListMap(cpu_list_in_node);
@@ -350,7 +350,7 @@ int Monitor::initVMInfo() {
 		vm_info.setAPM(APM);
 		vm_info.setANM(ANM);
 		vm_info.setANP(ANP);
-
+		vm_info.setBoundBuffer(boundedBuffer);
 		vm_infos_map[dom_id] = vm_info;
 		virDomainPtr dom_ptr;
 		dom_ptr = virDomainLookupByID(conn, dom_id);
@@ -406,6 +406,7 @@ void Monitor::virConnectCloseCallBack(virConnectPtr conn ATTRIBUTE_UNUSED,
 int Monitor::virVMEventCallBack(virConnectPtr conn ATTRIBUTE_UNUSED,
 							  virDomainPtr dom, int event,
 							  int detail, void *data) {
+	// TODO:处理虚拟机的启动，关闭
     return 0;
 }
 
@@ -508,18 +509,16 @@ void Monitor::start() {
 	}
 	// 启动服务器线程
 	std::thread server(&Monitor::startServer, this);
+	// 启动VM线程
+	for(auto &it : vm_infos_map) {
+		VM &vm = it.second;
+		vm.start();			
+	}
 	while(1) {
 		if (virEventRunDefaultImpl() < 0) {
             fprintf(stderr, "Failed to run event loop: %s\n",
                     virGetLastErrorMessage());
         }
-		for(auto &it : vm_infos_map) {
-			VM &vm = it.second;
-			vm.start();
-			vm.printVMInfo();
-			ModelValue mv = vm.getModelValue();
-			boundedBuffer.put(mv);
-		}
 		std::chrono::milliseconds sleepDuration((int)monitor_interval);
         std::this_thread::sleep_for(sleepDuration);
 	}
