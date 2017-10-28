@@ -227,6 +227,8 @@ private:
 
 	// 使用模型计算值
 	void calculateModelValue();
+
+	void execute();
 	
 };
 
