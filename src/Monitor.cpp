@@ -509,17 +509,21 @@ void Monitor::start() {
 	}
 	// 启动服务器线程
 	std::thread server(&Monitor::startServer, this);
-	// 启动VM线程
-	for(auto &it : vm_infos_map) {
-		VM &vm = it.second;
-		vm.start();			
-	}
+	// // 启动VM线程
+	// for(auto &it : vm_infos_map) {
+	// 	VM &vm = it.second;
+	// 	vm.start();			
+	// }
+	std::chrono::milliseconds sleepDuration((int)monitor_interval);
 	while(1) {
 		if (virEventRunDefaultImpl() < 0) {
             fprintf(stderr, "Failed to run event loop: %s\n",
                     virGetLastErrorMessage());
         }
-		std::chrono::milliseconds sleepDuration((int)monitor_interval);
+		for(auto &it : vm_infos_map) {
+			VM &vm = it.second;
+			vm.start();			
+		}
         std::this_thread::sleep_for(sleepDuration);
 	}
 	server.join();

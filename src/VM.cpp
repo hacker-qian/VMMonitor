@@ -335,8 +335,14 @@ void VM::execute() {
 }
 
 void VM::start() {
-	std::thread vm(&VM::execute, this);
-	
+	// std::thread vm(&VM::execute, this);
+	getNetworkIOStat();
+	getMemoryStat();
+	getCPUStat();
+	getPerfEventStat();
+	calculateModelValue();
+	putModelValue();
+	printVMInfo();
 }
 
 void VM::calculateModelValue() {
