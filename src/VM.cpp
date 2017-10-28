@@ -287,7 +287,7 @@ void VM::getPerfEventStat() {
 	*/
 	const static unsigned BUF_SIZE = 128;
 	char buffer[BUF_SIZE];
-    string cmd = "sudo perf stat -e cycles,instructions,mem_load_uops_retired.llc_miss"
+    string cmd = "sudo perf stat -e cycles,instructions,cpu/event=0xd1,umask=0x20,name=mem_load_uops_retired_llc_miss/"
     " -x,  -p " + to_string(pid) +" sleep " + to_string(sampling_duration) +" 2>&1";
     FILE* pipe = popen(cmd.c_str(), "r");
     if (!pipe) throw std::runtime_error("popen() failed!");
